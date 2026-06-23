@@ -54,7 +54,13 @@ const obtenerFechaHoy = () => {
   return hoy.toISOString().split("T")[0];
 };
 
+const convertirFechaInputADate = (fecha) => {
+  return new Date(`${fecha}T00:00:00`);
+};
+
 const [fechaSeleccionada, setFechaSeleccionada] = useState(obtenerFechaHoy());
+const [fechaLlegadaManual, setFechaLlegadaManual] = useState(obtenerFechaHoy());
+const [editFechaLlegada, setEditFechaLlegada] = useState("");
 const [verTodasFechas, setVerTodasFechas] = useState(false);
 const [cargandoAuth, setCargandoAuth] = useState(true);
  useEffect(() => {
@@ -62,27 +68,7 @@ const [cargandoAuth, setCargandoAuth] = useState(true);
     setUsuario(user);
     setCargandoAuth(false);
   });
-const exportarExcel = () => {
-  const datosExcel = muestrasFiltradas.map((muestra) => ({
-    Código: muestra.codigo || "",
-    Cliente: muestra.cliente || "",
-    Estado: etiquetaEstado(muestra.estado),
-    Llegada: formatearFecha(muestra.fechaLlegada),
-    Observación: muestra.observacion || "Sin observación",
-    Tiempo: calcularTiempo(
-      muestra.fechaLlegada,
-      muestra.fechaFinalizacion,
-      muestra.estado
-    ),
-  }));
 
-  const hoja = XLSX.utils.json_to_sheet(datosExcel);
-  const libro = XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(libro, hoja, "Muestras");
-
-  XLSX.writeFile(libro, `SCM_Muestras_${fechaSeleccionada}.xlsx`);
-};
   return () => unsubscribe();
 }, []);
 useEffect(() => {
@@ -112,7 +98,8 @@ useEffect(() => {
       cliente: cliente.trim(),
       estado,
       observacion: observacion.trim(),
-      fechaLlegada: serverTimestamp(),
+   fechaLlegada: convertirFechaInputADate(fechaLlegadaManual),
+fechaRegistro: serverTimestamp(),
       fechaFinalizacion: estado === "finalizada" ? serverTimestamp() : null,
     });
 
@@ -120,6 +107,7 @@ useEffect(() => {
     setCliente("");
     setEstado("en_proceso");
     setObservacion("");
+    setFechaLlegadaManual(obtenerFechaHoy());
   };
 
  const cambiarEstado = async (id, nuevoEstado) => {
@@ -510,7 +498,7 @@ if (!usuario) {
       <span>📝</span>
       <h3>Registrar muestra</h3>
     </div>
-
+    
     <form onSubmit={registrarMuestra} className="sample-form">
       <label>
         Código
@@ -529,6 +517,15 @@ if (!usuario) {
           onChange={(e) => setCliente(e.target.value)}
         />
       </label>
+
+<label>
+  Fecha de llegada
+  <input
+    type="date"
+    value={fechaLlegadaManual}
+    onChange={(e) => setFechaLlegadaManual(e.target.value)}
+  />
+</label>
 
       <label>
         Estado
