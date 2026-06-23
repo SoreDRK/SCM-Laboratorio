@@ -1,0 +1,54 @@
+{
+  "app.title": "🔬 SCM Laboratorio",
+  "header.subtitle": "Control de muestras en tiempo real",
+  "logout": "Cerrar sesión",
+
+  "loading": "Cargando...",
+
+  "login.email": "Correo",
+  "login.password": "Contraseña",
+  "login.submit": "Ingresar",
+
+  "alert.required": "Código y cliente son obligatorios",
+  "alert.loginError": "Correo o contraseña incorrectos",
+  "confirm.delete": "¿Seguro que deseas eliminar esta muestra?",
+
+  "stats.in_process": "En proceso",
+  "stats.incidences": "Incidencias",
+  "stats.finished": "Finalizadas",
+  "stats.total": "Total",
+
+  "form.registerSample": "Registrar muestra",
+  "form.code": "Código",
+  "form.client": "Cliente",
+  "form.observation": "Observación / incidencia",
+  "form.register": "Registrar",
+
+  "filters.search": "Buscar por código o cliente...",
+  "filters.show_finished": "Mostrar finalizadas",
+
+  "table.code": "Código",
+  "table.client": "Cliente",
+  "table.status": "Estado",
+  "table.arrival": "Llegada",
+  "table.observation": "Observación",
+  "table.time": "Tiempo",
+  "table.actions": "Acciones",
+
+  "noObservation": "Sin observación",
+  "noSamples": "No hay muestras registradas.",
+
+  "action.edit": "Editar",
+  "action.save": "Guardar",
+  "action.cancel": "Cancelar",
+  "action.process": "Proceso",
+  "action.incidence": "Incidencia",
+  "action.finish": "Finalizar",
+  "action.delete": "Eliminar",
+
+  "status.in_proceso": "En proceso",
+  "status.incidencia": "Incidencia",
+  "status.finalizada": "Finalizada",
+
+  "status.registering": "Registrando..."
+}
