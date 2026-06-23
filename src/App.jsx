@@ -5,6 +5,7 @@ import {
 } from "firebase/auth";
 
 import { auth } from "./Services/firebase";
+import * as XLSX from "xlsx";
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -61,7 +62,27 @@ const [cargandoAuth, setCargandoAuth] = useState(true);
     setUsuario(user);
     setCargandoAuth(false);
   });
+const exportarExcel = () => {
+  const datosExcel = muestrasFiltradas.map((muestra) => ({
+    Código: muestra.codigo || "",
+    Cliente: muestra.cliente || "",
+    Estado: etiquetaEstado(muestra.estado),
+    Llegada: formatearFecha(muestra.fechaLlegada),
+    Observación: muestra.observacion || "Sin observación",
+    Tiempo: calcularTiempo(
+      muestra.fechaLlegada,
+      muestra.fechaFinalizacion,
+      muestra.estado
+    ),
+  }));
 
+  const hoja = XLSX.utils.json_to_sheet(datosExcel);
+  const libro = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(libro, hoja, "Muestras");
+
+  XLSX.writeFile(libro, `SCM_Muestras_${fechaSeleccionada}.xlsx`);
+};
   return () => unsubscribe();
 }, []);
 useEffect(() => {
@@ -247,6 +268,27 @@ const muestrasFiltradas = muestrasPorFecha.filter((muestra) => {
 
 return coincideBusqueda && coincideVista;
 });
+const exportarExcel = () => {
+  const datosExcel = muestrasFiltradas.map((muestra) => ({
+    Código: muestra.codigo || "",
+    Cliente: muestra.cliente || "",
+    Estado: etiquetaEstado(muestra.estado),
+    Llegada: formatearFecha(muestra.fechaLlegada),
+    Observación: muestra.observacion || "Sin observación",
+    Tiempo: calcularTiempo(
+      muestra.fechaLlegada,
+      muestra.fechaFinalizacion,
+      muestra.estado
+    ),
+  }));
+
+  const hoja = XLSX.utils.json_to_sheet(datosExcel);
+  const libro = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(libro, hoja, "Muestras");
+
+  XLSX.writeFile(libro, `SCM_Muestras_${fechaSeleccionada}.xlsx`);
+};
 if (cargandoAuth) {
   return <h2>Cargando...</h2>;
 }
@@ -468,7 +510,13 @@ if (!usuario) {
       <span>📝</span>
       <h3>Registrar muestra</h3>
     </div>
+<div className="section-title">
+  <div>
+    <span>📄</span>
+    <h3>Muestras registradas</h3>
+  </div>
 
+</div>
     <form onSubmit={registrarMuestra} className="sample-form">
       <label>
         Código
@@ -525,7 +573,6 @@ if (!usuario) {
           : "Muestras registradas"}
       </h3>
     </div>
-
     <div className="filters">
       <input
         placeholder="Buscar por código o cliente..."
@@ -555,6 +602,13 @@ if (!usuario) {
       <button type="button" onClick={() => setVerTodasFechas(true)}>
         Ver todas
       </button>
+      <button
+  type="button"
+  className="excel-btn"
+  onClick={exportarExcel}
+>
+  📥 Exportar Excel
+</button>
     </div>
 
     <div className="table-wrapper">

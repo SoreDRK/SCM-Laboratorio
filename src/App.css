@@ -240,8 +240,7 @@ body {
 }
 
 .section-title h3 {
-  margin: 0;
-  font-size: 22px;
+  margin-right: auto;
 }
 
 .sample-form {
@@ -796,4 +795,19 @@ tbody tr:hover {
 .notification-item.success {
   background: #dcfce7;
   color: #16a34a;
+}
+.excel-btn {
+  height: 48px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 12px;
+  background: #16a34a;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(22, 163, 74, 0.24);
+}
+
+.excel-btn:hover {
+  transform: translateY(-2px);
 }
