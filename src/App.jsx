@@ -510,13 +510,7 @@ if (!usuario) {
       <span>📝</span>
       <h3>Registrar muestra</h3>
     </div>
-<div className="section-title">
-  <div>
-    <span>📄</span>
-    <h3>Muestras registradas</h3>
-  </div>
 
-</div>
     <form onSubmit={registrarMuestra} className="sample-form">
       <label>
         Código
