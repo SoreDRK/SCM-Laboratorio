@@ -325,10 +325,11 @@ select:focus {
 
 .table-wrapper {
   overflow-x: auto;
-  border-radius: 16px;
-  border: 1px solid #e6edf7;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -653,13 +654,6 @@ tbody tr:hover {
   border-radius: 12px;
   white-space: nowrap;
 }
-
-.table-wrapper {
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-}
-
 th {
   background: #f8fbff;
   color: #334155;
