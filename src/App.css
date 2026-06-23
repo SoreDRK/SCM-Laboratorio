@@ -13,9 +13,10 @@ body {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 270px 1fr;
-  background: linear-gradient(135deg, #f8fbff, #eef5ff);
+  background:
+    linear-gradient(rgba(244, 248, 255, 0.55), rgba(244, 248, 255, 0.55)),
+    url("/src/assets/lab-bg.jpg") center / cover fixed no-repeat !important;
 }
-
 .sidebar {
   background: rgba(255, 255, 255, 0.95);
   border-right: 1px solid #e5eaf3;
@@ -730,4 +731,75 @@ tbody tr:hover {
 .table-action.cancel {
   background: #ffe4ec;
   color: #e11d48;
+}
+.content-card,
+.metric-card,
+.date-pill,
+.notification,
+.sidebar-user {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.sidebar {
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.notification {
+  cursor: pointer;
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ef4444;
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.topbar {
+  position: relative;
+}
+
+.notification-panel {
+  position: absolute;
+  top: 80px;
+  right: 0;
+  width: 320px;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 15px;
+  box-shadow: 0 20px 40px rgba(15,23,42,0.15);
+  z-index: 1000;
+}
+
+.notification-item {
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.notification-item.warning {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.notification-item.success {
+  background: #dcfce7;
+  color: #16a34a;
 }

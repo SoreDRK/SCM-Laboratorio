@@ -24,6 +24,7 @@ function App() {
   const [muestras, setMuestras] = useState([]);
   const [codigo, setCodigo] = useState("");
   const [cliente, setCliente] = useState("");
+  const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false);
   const [estado, setEstado] = useState("en_proceso");
   const [observacion, setObservacion] = useState("");
   const [busqueda, setBusqueda] = useState("");
@@ -378,10 +379,50 @@ if (!usuario) {
         </div>
 
         <div className="topbar-actions">
-          <div className="date-pill">📅 {fechaSeleccionada}</div>
-          <div className="notification">🔔</div>
-        </div>
-      </header>
+  <div className="date-pill">📅 {fechaSeleccionada}</div>
+
+  <div
+    className="notification"
+    onClick={() => setMostrarNotificaciones(!mostrarNotificaciones)}
+  >
+    🔔
+
+    {totalIncidencia > 0 && (
+      <span className="notification-badge">
+        {totalIncidencia}
+      </span>
+    )}
+  </div>
+</div>
+
+{mostrarNotificaciones && (
+  <div className="notification-panel">
+    {totalIncidencia > 0 && (
+      <div className="notification-item warning">
+        ⚠️ Hay {totalIncidencia} muestras con incidencia
+      </div>
+    )}
+
+    {totalProceso > 0 && (
+      <div className="notification-item">
+        ⏳ Hay {totalProceso} muestras en proceso
+      </div>
+    )}
+
+    {totalFinalizadas > 0 && (
+      <div className="notification-item success">
+        ✅ {totalFinalizadas} muestras finalizadas
+      </div>
+    )}
+
+    {totalIncidencia === 0 && totalProceso === 0 && totalFinalizadas === 0 && (
+      <div className="notification-item">
+        Sin notificaciones
+      </div>
+    )}
+  </div>
+)}
+</header>
 {mostrarDashboard && (
   <section className="stats-grid">
         <div className="metric-card blue">
