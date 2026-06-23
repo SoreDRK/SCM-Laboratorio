@@ -27,10 +27,10 @@ function App() {
   const [estado, setEstado] = useState("en_proceso");
   const [observacion, setObservacion] = useState("");
   const [busqueda, setBusqueda] = useState("");
-const [mostrarFinalizadas, setMostrarFinalizadas] = useState(false);
 const [editandoId, setEditandoId] = useState(null);
 const [editCodigo, setEditCodigo] = useState("");
 const [editCliente, setEditCliente] = useState("");
+const [vistaActiva, setVistaActiva] = useState("inicio");
 const [editEstado, setEditEstado] = useState("en_proceso");
 const [editObservacion, setEditObservacion] = useState("");
 const [usuario, setUsuario] = useState(null);
@@ -74,18 +74,6 @@ useEffect(() => {
 
       setMuestras(datos);
     });
-const muestrasFiltradas = muestras.filter((muestra) => {
-  const textoBusqueda = busqueda.toLowerCase();
-
-  const coincideBusqueda =
-    muestra.codigo?.toLowerCase().includes(textoBusqueda) ||
-    muestra.cliente?.toLowerCase().includes(textoBusqueda);
-
-  const coincideEstado =
-    mostrarFinalizadas || muestra.estado !== "finalizada";
-
-  return coincideBusqueda && coincideEstado;
-});
     return () => unsubscribe();
   }, []);
 
@@ -221,13 +209,27 @@ const obtenerColorTiempo = (fechaLlegada, fechaFinalizacion, estado) => {
     if (estado === "finalizada") return "Finalizada";
     return estado;
   };
+const mostrarDashboard = vistaActiva === "inicio";
+const mostrarFormulario = vistaActiva === "inicio" || vistaActiva === "registrar";
+const mostrarTabla = vistaActiva !== "registrar";
+
+const tituloVista = () => {
+  if (vistaActiva === "registrar") return "Registrar muestra";
+  if (vistaActiva === "muestras") return "Todas las muestras";
+  if (vistaActiva === "incidencias") return "Incidencias";
+  if (vistaActiva === "finalizadas") return "Muestras finalizadas";
+  return "¡Bienvenido! 👋";
+};
+
 const muestrasPorFecha = muestras.filter((muestra) => {
   if (verTodasFechas) return true;
   return obtenerFechaInput(muestra.fechaLlegada) === fechaSeleccionada;
 });
+
 const totalProceso = muestrasPorFecha.filter((m) => m.estado === "en_proceso").length;
 const totalIncidencia = muestrasPorFecha.filter((m) => m.estado === "incidencia").length;
 const totalFinalizadas = muestrasPorFecha.filter((m) => m.estado === "finalizada").length;
+
 const muestrasFiltradas = muestrasPorFecha.filter((muestra) => {
   const textoBusqueda = busqueda.toLowerCase();
 
@@ -235,10 +237,14 @@ const muestrasFiltradas = muestrasPorFecha.filter((muestra) => {
     muestra.codigo?.toLowerCase().includes(textoBusqueda) ||
     muestra.cliente?.toLowerCase().includes(textoBusqueda);
 
-  const coincideEstado =
-    mostrarFinalizadas || muestra.estado !== "finalizada";
+  const coincideVista =
+    vistaActiva === "inicio" ||
+    vistaActiva === "muestras" ||
+    vistaActiva === "registrar" ||
+    (vistaActiva === "incidencias" && muestra.estado === "incidencia") ||
+    (vistaActiva === "finalizadas" && muestra.estado === "finalizada");
 
-  return coincideBusqueda && coincideEstado;
+return coincideBusqueda && coincideVista;
 });
 if (cargandoAuth) {
   return <h2>Cargando...</h2>;
@@ -303,240 +309,361 @@ if (!usuario) {
     </div>
   );
 }
-  return (
-    <div className="app">
-     <header className="header">
-  <div className="header-top">
-    <div>
-      <h1>🧪 SCM Laboratorio</h1>
-      <p>Control de muestras en tiempo real</p>
+ return (
+  <div className="dashboard-layout">
+    <aside className="sidebar">
+      <div className="brand">
+        <div className="brand-icon">🧪</div>
+        <div>
+          <h1>SCM</h1>
+          <span>Laboratorio</span>
+        </div>
+      </div>
+
+      <nav className="sidebar-nav">
+  <button
+    className={vistaActiva === "inicio" ? "active" : ""}
+    onClick={() => setVistaActiva("inicio")}
+  >
+    🏠 Inicio
+  </button>
+
+  <button
+    className={vistaActiva === "registrar" ? "active" : ""}
+    onClick={() => setVistaActiva("registrar")}
+  >
+    ➕ Registrar muestra
+  </button>
+
+  <button
+    className={vistaActiva === "muestras" ? "active" : ""}
+    onClick={() => setVistaActiva("muestras")}
+  >
+    📋 Muestras
+  </button>
+
+  <button
+    className={vistaActiva === "incidencias" ? "active" : ""}
+    onClick={() => setVistaActiva("incidencias")}
+  >
+    ⚠️ Incidencias
+  </button>
+
+  <button
+    className={vistaActiva === "finalizadas" ? "active" : ""}
+    onClick={() => setVistaActiva("finalizadas")}
+  >
+    ✅ Finalizadas
+  </button>
+</nav>
+
+      <div className="sidebar-user">
+        <div className="avatar">SC</div>
+        <div>
+          <strong>SCM Lab</strong>
+          <span>Administrador</span>
+        </div>
+      </div>
+
+      <button className="sidebar-logout" onClick={cerrarSesion}>
+        ↪ Cerrar sesión
+      </button>
+    </aside>
+
+    <main className="main-content">
+      <header className="topbar">
+        <div>
+          <h2>{tituloVista()}</h2>
+          <p>Control de muestras en tiempo real</p>
+        </div>
+
+        <div className="topbar-actions">
+          <div className="date-pill">📅 {fechaSeleccionada}</div>
+          <div className="notification">🔔</div>
+        </div>
+      </header>
+{mostrarDashboard && (
+  <section className="stats-grid">
+        <div className="metric-card blue">
+          <div className="metric-icon">🧪</div>
+          <div>
+            <span>En proceso</span>
+            <strong>{totalProceso}</strong>
+            <p>En análisis</p>
+          </div>
+        </div>
+
+        <div className="metric-card red">
+          <div className="metric-icon">⚠️</div>
+          <div>
+            <span>Incidencias</span>
+            <strong>{totalIncidencia}</strong>
+            <p>Requieren atención</p>
+          </div>
+        </div>
+
+        <div className="metric-card green">
+          <div className="metric-icon">✅</div>
+          <div>
+            <span>Finalizadas</span>
+            <strong>{totalFinalizadas}</strong>
+            <p>Completadas</p>
+          </div>
+        </div>
+
+        <div className="metric-card purple">
+          <div className="metric-icon">📦</div>
+          <div>
+            <span>Total</span>
+            <strong>{muestras.length}</strong>
+            <p>Muestras registradas</p>
+          </div>
+        </div>
+      </section>
+      )}
+{mostrarFormulario && (
+  <section className="content-card">
+    <div className="section-title">
+      <span>📝</span>
+      <h3>Registrar muestra</h3>
     </div>
 
-    <button className="logout-btn" onClick={cerrarSesion}>
-      Cerrar sesión
-    </button>
-  </div>
-</header>
+    <form onSubmit={registrarMuestra} className="sample-form">
+      <label>
+        Código
+        <input
+          placeholder="Ej. MUE-001"
+          value={codigo}
+          onChange={(e) => setCodigo(e.target.value)}
+        />
+      </label>
 
-      <section className="stats">
-        <div className="stat-card">
-          <span>En proceso</span>
-          <strong>{totalProceso}</strong>
-        </div>
+      <label>
+        Cliente
+        <input
+          placeholder="Nombre del cliente"
+          value={cliente}
+          onChange={(e) => setCliente(e.target.value)}
+        />
+      </label>
 
-        <div className="stat-card danger">
-          <span>Incidencias</span>
-          <strong>{totalIncidencia}</strong>
-        </div>
+      <label>
+        Estado
+        <select value={estado} onChange={(e) => setEstado(e.target.value)}>
+          <option value="en_proceso">En proceso</option>
+          <option value="incidencia">Incidencia</option>
+          <option value="finalizada">Finalizada</option>
+        </select>
+      </label>
 
-        <div className="stat-card success">
-          <span>Finalizadas</span>
-          <strong>{totalFinalizadas}</strong>
-        </div>
+      <label>
+        Observación / incidencia
+        <input
+          placeholder="Escribe una observación"
+          value={observacion}
+          onChange={(e) => setObservacion(e.target.value)}
+        />
+      </label>
 
-        <div className="stat-card">
-          <span>Total</span>
-          <strong>{muestras.length}</strong>
-        </div>
-      </section>
+      <button type="submit" className="primary-btn">
+        Registrar muestra
+      </button>
+    </form>
+  </section>
+)}
 
-      <section className="panel">
-        <h2>Registrar muestra</h2>
+{mostrarTabla && (
+  <section className="content-card">
+    <div className="section-title">
+      <span>📄</span>
+      <h3>
+        {vistaActiva === "incidencias"
+          ? "Muestras con incidencia"
+          : vistaActiva === "finalizadas"
+          ? "Muestras finalizadas"
+          : "Muestras registradas"}
+      </h3>
+    </div>
 
-        <form onSubmit={registrarMuestra} className="form">
-          <input
-            placeholder="Código"
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value)}
-          />
+    <div className="filters">
+      <input
+        placeholder="Buscar por código o cliente..."
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+      />
 
-          <input
-            placeholder="Cliente"
-            value={cliente}
-            onChange={(e) => setCliente(e.target.value)}
-          />
+      <input
+        type="date"
+        value={fechaSeleccionada}
+        onChange={(e) => {
+          setFechaSeleccionada(e.target.value);
+          setVerTodasFechas(false);
+        }}
+      />
 
-          <select value={estado} onChange={(e) => setEstado(e.target.value)}>
-            <option value="en_proceso">En proceso</option>
-            <option value="incidencia">Incidencia</option>
-            <option value="finalizada">Finalizada</option>
-          </select>
+      <button
+        type="button"
+        onClick={() => {
+          setFechaSeleccionada(obtenerFechaHoy());
+          setVerTodasFechas(false);
+        }}
+      >
+        Hoy
+      </button>
 
-          <input
-            placeholder="Observación / incidencia"
-            value={observacion}
-            onChange={(e) => setObservacion(e.target.value)}
-          />
+      <button type="button" onClick={() => setVerTodasFechas(true)}>
+        Ver todas
+      </button>
+    </div>
 
-          <button type="submit">Registrar</button>
-        </form>
-      </section>
+    <div className="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Llegada</th>
+            <th>Observación</th>
+            <th>Tiempo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
 
-      <section className="panel">
-        <h2>Muestras registradas</h2>
-<div className="filters">
- <input
-  placeholder="Buscar por código o cliente..."
-  value={busqueda}
-  onChange={(e) => setBusqueda(e.target.value)}
-/>
+        <tbody>
+          {muestrasFiltradas.map((muestra) => (
+            <tr key={muestra.id}>
+              <td>
+                {editandoId === muestra.id ? (
+                  <input
+                    value={editCodigo}
+                    onChange={(e) => setEditCodigo(e.target.value)}
+                  />
+                ) : (
+                  muestra.codigo
+                )}
+              </td>
 
-<input
-  type="date"
-  value={fechaSeleccionada}
-  onChange={(e) => {
-    setFechaSeleccionada(e.target.value);
-    setVerTodasFechas(false);
-  }}
-/>
+              <td>
+                {editandoId === muestra.id ? (
+                  <input
+                    value={editCliente}
+                    onChange={(e) => setEditCliente(e.target.value)}
+                  />
+                ) : (
+                  muestra.cliente
+                )}
+              </td>
 
-<button
-  type="button"
-  onClick={() => {
-    setFechaSeleccionada(obtenerFechaHoy());
-    setVerTodasFechas(false);
-  }}
+              <td>
+                {editandoId === muestra.id ? (
+                  <select
+                    value={editEstado}
+                    onChange={(e) => setEditEstado(e.target.value)}
+                  >
+                    <option value="en_proceso">En proceso</option>
+                    <option value="incidencia">Incidencia</option>
+                    <option value="finalizada">Finalizada</option>
+                  </select>
+                ) : (
+                  <span className={`badge ${muestra.estado}`}>
+                    {etiquetaEstado(muestra.estado)}
+                  </span>
+                )}
+              </td>
+
+              <td>{formatearFecha(muestra.fechaLlegada)}</td>
+
+              <td>
+                {editandoId === muestra.id ? (
+                  <input
+                    value={editObservacion}
+                    onChange={(e) => setEditObservacion(e.target.value)}
+                  />
+                ) : (
+                  muestra.observacion || "Sin observación"
+                )}
+              </td>
+
+              <td
+                className={obtenerColorTiempo(
+                  muestra.fechaLlegada,
+                  muestra.fechaFinalizacion,
+                  muestra.estado
+                )}
+              >
+                {calcularTiempo(
+                  muestra.fechaLlegada,
+                  muestra.fechaFinalizacion,
+                  muestra.estado
+                )}
+              </td>
+
+              <td className="actions">
+              <button
+  className="table-action edit"
+  onClick={() => iniciarEdicion(muestra)}
 >
-  Hoy
+  ✏️
 </button>
 
-<button
-  type="button"
-  onClick={() => setVerTodasFechas(true)}
->
-  Ver todas
-</button>
-
-  <label>
-    <input
-      type="checkbox"
-      checked={mostrarFinalizadas}
-      onChange={(e) => setMostrarFinalizadas(e.target.checked)}
-    />
-    Mostrar finalizadas
-  </label>
-</div>
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Cliente</th>
-                <th>Estado</th>
-                <th>Llegada</th>
-                <th>Observación</th>
-                <th>Tiempo</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-            {muestrasFiltradas.map((muestra) => (
-                <tr key={muestra.id}>
-                  <td>
-  {editandoId === muestra.id ? (
-    <input value={editCodigo} onChange={(e) => setEditCodigo(e.target.value)} />
-  ) : (
-    muestra.codigo
-  )}
-</td>
-
-<td>
-  {editandoId === muestra.id ? (
-    <input value={editCliente} onChange={(e) => setEditCliente(e.target.value)} />
-  ) : (
-    muestra.cliente
-  )}
-</td>
-                <td>
-  {editandoId === muestra.id ? (
-    <select
-      value={editEstado}
-      onChange={(e) => setEditEstado(e.target.value)}
-    >
-      <option value="en_proceso">En proceso</option>
-      <option value="incidencia">Incidencia</option>
-      <option value="finalizada">Finalizada</option>
-    </select>
-  ) : (
-    <span className={`badge ${muestra.estado}`}>
-      {etiquetaEstado(muestra.estado)}
-    </span>
-  )}
-</td>
-                  <td>{formatearFecha(muestra.fechaLlegada)}</td>
-                  <td>
-  {editandoId === muestra.id ? (
-    <input
-      value={editObservacion}
-      onChange={(e) => setEditObservacion(e.target.value)}
-    />
-  ) : (
-    muestra.observacion || "Sin observación"
-  )}
-</td>
-  <td
-  className={obtenerColorTiempo(
-    muestra.fechaLlegada,
-    muestra.fechaFinalizacion,
-    muestra.estado
-  )}
->
-  {calcularTiempo(
-    muestra.fechaLlegada,
-    muestra.fechaFinalizacion,
-    muestra.estado
-  )}
-</td>
-                  <td className="actions">
-                    <button className="edit-btn" onClick={() => iniciarEdicion(muestra)}>
-  Editar
-</button>
-                    {editandoId === muestra.id && (
+{editandoId === muestra.id && (
   <>
     <button
-      className="save-btn"
+      className="table-action save"
       onClick={() => guardarEdicion(muestra.id)}
     >
-      Guardar
+      💾
     </button>
 
     <button
-      className="cancel-btn"
+      className="table-action cancel"
       onClick={cancelarEdicion}
     >
-      Cancelar
+      ✖️
     </button>
   </>
 )}
-                    <button onClick={() => cambiarEstado(muestra.id, "en_proceso")}>
-                      Proceso
-                    </button>
-                    <button onClick={() => cambiarEstado(muestra.id, "incidencia")}>
-                      Incidencia
-                    </button>
-                    <button onClick={() => cambiarEstado(muestra.id, "finalizada")}>
-                      Finalizar
-                      <button className="delete-btn" onClick={() => eliminarMuestra(muestra.id)}>
-  Eliminar
-</button>
-                    </button>
-                  </td>
-                </tr>
-              ))}
 
-            {muestrasFiltradas.length === 0 && (
-                <tr>
-                  <td colSpan="7" className="empty">
-                    No hay muestras registradas.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+<button
+  className="table-action warning"
+  onClick={() => cambiarEstado(muestra.id, "incidencia")}
+>
+  ⚠️
+</button>
+
+<button
+  className="table-action success"
+  onClick={() => cambiarEstado(muestra.id, "finalizada")}
+>
+  ✅
+</button>
+
+<button
+  className="table-action delete"
+  onClick={() => eliminarMuestra(muestra.id)}
+>
+  🗑️
+</button>
+              </td>
+            </tr>
+          ))}
+
+          {muestrasFiltradas.length === 0 && (
+            <tr>
+              <td colSpan="7" className="empty">
+                No hay muestras registradas.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
-    );
-    }
+  </section>
+)}
+</main>
+</div>
+);
+}
+
 export default App;
